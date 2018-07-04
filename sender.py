@@ -62,7 +62,7 @@ class Mail(object):
 
     def __init__(self, host='localhost', username=None, password=None,
                  port=25, use_tls=False, use_ssl=False, debug_level=None,
-                 fromaddr=None):
+                 fromaddr=None, timeout=None):
         self.host = host
         self.port = port
         self.username = username
@@ -71,6 +71,7 @@ class Mail(object):
         self.use_ssl = use_ssl
         self.debug_level = debug_level
         self.fromaddr = fromaddr
+        self.timeout = timeout
 
     @property
     def connection(self):
@@ -117,9 +118,15 @@ class Connection(object):
 
     def __enter__(self):
         if self.mail.use_ssl:
-            server = smtplib.SMTP_SSL(self.mail.host, self.mail.port)
+            server = smtplib.SMTP_SSL(
+                self.mail.host, self.mail.port,
+                timeout=self.mail.timeout
+            )
         else:
-            server = smtplib.SMTP(self.mail.host, self.mail.port)
+            server = smtplib.SMTP(
+                self.mail.host, self.mail.port,
+                timeout=self.mail.timeout
+            )
 
         # Set the debug output level
         if self.mail.debug_level is not None:
